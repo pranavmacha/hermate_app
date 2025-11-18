@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:hive/hive.dart';
+
+import 'package:hermate_app/features/calendar/screens/symptom_log_screen.dart';
+
 import '../../../core/constants/colors.dart';
 import 'log_history_screen.dart';
 
@@ -507,6 +510,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          final day = selectedDay ?? DateTime.now();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => SymptomLogScreen(
+                selectedDate: day,
+                box: box,
+              ),
+            ),
+          );
+        },
+        label: const Text("Log Symptoms"),
+        icon: const Icon(Icons.favorite),
       ),
     );
   }
