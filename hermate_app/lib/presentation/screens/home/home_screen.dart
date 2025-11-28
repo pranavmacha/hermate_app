@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:hermate_app/features/calendar/screens/symptom_log_screen.dart';
+
 import '../../../core/constants/colors.dart';
 import '../education/education_screen.dart';
 
@@ -96,6 +98,23 @@ class _DashboardViewState extends State<_DashboardView> {
       lastPeriodStart = box.get('lastPeriodStart');
       lastPeriodEnd = box.get('lastPeriodEnd');
     });
+  }
+
+  Future<void> _openSymptomLogger(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SymptomLogScreen(
+          selectedDate: DateTime.now(),
+          box: box,
+        ),
+      ),
+    );
+
+    if (result == true) {
+      _loadData();
+      widget.onRefresh();
+    }
   }
 
   // Calculate average cycle length (start to start)
@@ -227,7 +246,10 @@ class _DashboardViewState extends State<_DashboardView> {
               isOnPeriod: lastPeriodStart != null && lastPeriodEnd == null,
             ),
             const SizedBox(height: 24),
-            _QuickActionRow(onRefresh: _loadData),
+            _QuickActionRow(
+              onRefresh: _loadData,
+              onLogSymptoms: () => _openSymptomLogger(context),
+            ),
             const SizedBox(height: 24),
             _SymptomHighlightCard(phase: phase),
             const SizedBox(height: 24),
@@ -344,8 +366,12 @@ class _CycleSummaryCard extends StatelessWidget {
 
 class _QuickActionRow extends StatelessWidget {
   final VoidCallback onRefresh;
+  final VoidCallback onLogSymptoms;
 
-  const _QuickActionRow({required this.onRefresh});
+  const _QuickActionRow({
+    required this.onRefresh,
+    required this.onLogSymptoms,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -368,14 +394,7 @@ class _QuickActionRow extends StatelessWidget {
             icon: Icons.edit_note,
             title: 'Log symptoms',
             subtitle: 'Add today\'s mood, cramps, or notes.',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Symptom logging is coming soon!'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
+            onTap: onLogSymptoms,
           ),
         ),
       ],
